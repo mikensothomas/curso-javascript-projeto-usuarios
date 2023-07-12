@@ -15,10 +15,48 @@ class UserController {
 
             event.preventDefault();
 
-            this.addLine(this.getValues())
-        
+            let values = this.getValues();
+
+            this.getphopto().then(
+                (content) => {
+
+                    values.photo = content;
+
+                    this.addLine(values);
+
+                },
+
+                (e) =>{
+                    console.log(e)
+              }
+            );
+    
         });
 
+    }
+
+    getphopto(){
+        return new Promise((resolve, reject) => {
+            let fileReader = new FileReader();
+            let elements = [...this.formEl.elements].filter(item=>{
+                
+                if (item.name === 'photo'){
+                    return item;
+                }
+            });
+
+            let file = elements[0].files[0];
+
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+
+            };
+
+            fileReader.onerror = (e)=>{
+                reject(e);
+            };
+            fileReader.readAsDataURL(file);
+        });
     }
 
     getValues(){
@@ -33,10 +71,12 @@ class UserController {
                     user[field.name] = field.value
                 }
     
-            } else {
+            } else if(field.name == "admin"){
     
                 user[field.name] = field.value
     
+            } else {
+                user[field.name] = field.value;
             }
     
         });
@@ -56,10 +96,11 @@ class UserController {
 
     
     addLine(dataUser) {
+        let tr = document.createElement('tr');
 
-        this.tableEl.innerHTML = `
+         tr.innerHTML= `
             <tr>
-                <td><img src="dist/img/user1-128x128.jpg" alt="User Image" class="img-circle img-sm"></td>
+                <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
                 <td>${dataUser.name}</td>
                 <td>${dataUser.email}</td>
                 <td>${dataUser.admin}</td>
@@ -70,7 +111,7 @@ class UserController {
                 </td>
             </tr>
         `;
-
+        this.tableEl.appendChild(tr);
     }
 
 
